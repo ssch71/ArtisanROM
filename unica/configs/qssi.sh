@@ -8,7 +8,7 @@
 # reproducible instead of silently moving with monthly FUS updates.
 # TODO: fill in the real model/CSC/IMEI. SM-S926U1/XAA is the unlocked US model,
 #       SM-S926W/BMC is Canada, SM-S926U is carrier-locked.
-SOURCE_FIRMWARE="SM-S926U/XAU/357361683779115"
+SOURCE_FIRMWARE="SM-S926U/XAU/350822573779116"
 
 SOURCE_EXTRA_FIRMWARES=()
 SOURCE_PLATFORM_SDK_VERSION=36
