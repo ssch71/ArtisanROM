@@ -3,18 +3,19 @@
 
 # UN1CA configuration file for Qualcomm devices (qssi)
 
-# Galaxy S24+ (Snapdragon 8 Gen 3 for Galaxy / SM8650-AC) (One UI 8.5)
+# Galaxy S24 Ultra (Snapdragon 8 Gen 3 for Galaxy / SM8650-AC) (One UI 8.5)
 # Keep the tested release pinned so framework/display behaviour is
 # reproducible instead of silently moving with monthly FUS updates.
-# TODO: fill in the real model/CSC/IMEI. SM-S926U1/XAA is the unlocked US model,
-#       SM-S926W/BMC is Canada, SM-S926U is carrier-locked.
-SOURCE_FIRMWARE="SM-S926U/XAU/350822573779116"
+# TODO: fill in the real model/CSC/IMEI. SM-S928B/EUX (global) is Snapdragon too;
+#       SM-S928U1/XAA is the unlocked US model, SM-S928U is carrier-locked.
+SOURCE_FIRMWARE="SM-S928B/EUX/353437179526139"
 
 SOURCE_EXTRA_FIRMWARES=()
 SOURCE_PLATFORM_SDK_VERSION=36
-# Snapdragon S24+ launched with Android 14 (API 34).
+# S24 Ultra launched with Android 14 (API 34).
 SOURCE_PRODUCT_SHIPPING_API_LEVEL=34
 SOURCE_BOARD_API_LEVEL=34
+# TODO: Ultra-only features (S Pen, 200MP camera/remaster flags) are not covered here
 # Qualcomm devices use the QTI dynamic partition group, not group_basic.
 SOURCE_SUPER_GROUP_NAME="qti_dynamic_partitions"
 # The Android 16 display stack (dynamic resolution and native
@@ -49,7 +50,7 @@ SOURCE_COMMON_SUPPORT_EMBEDDED_SIM=true
 SOURCE_COMMON_SUPPORT_HDR_EFFECT=true
 SOURCE_DVFSAPP_CONFIG_DVFS_POLICY_FILENAME="dvfs_policy_default"
 # TODO: verify against the source's floating_feature.xml (SM8650 policy name)
-SOURCE_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME="siop_e2q_sm8650"
+SOURCE_DVFSAPP_CONFIG_SSRM_POLICY_FILENAME="siop_e3q_sm8650"
 SOURCE_FINGERPRINT_CONFIG_SENSOR="google_touch_display_ultrasonic"
 SOURCE_LCD_CONFIG_COLOR_WEAKNESS_SOLUTION="3"
 SOURCE_LCD_CONFIG_CONTROL_AUTO_BRIGHTNESS="5"
@@ -60,7 +61,7 @@ SOURCE_LCD_CONFIG_HFR_SUPPORTED_REFRESH_RATE_NS="none"
 SOURCE_LCD_CONFIG_SEAMLESS_BRT="none"
 SOURCE_LCD_CONFIG_SEAMLESS_LUX="none"
 SOURCE_LCD_SUPPORT_MDNIE_HW=true
-# TODO: verify eSE vendor/COS on the Snapdragon model (differs from the Exynos one)
+# TODO: verify eSE vendor/COS on the S928 firmware
 SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR="GEMALTO"
 SOURCE_SECURITY_CONFIG_ESE_COS_NAME="UT8.2U"
 # TODO: verify TelephonyFeatures in the US/CA framework; the Exynos EUX value
@@ -78,7 +79,7 @@ SOURCE_WLAN_CONFIG_DATA_ACTIVITY_AFFINITY_BOOSTER_THRESHOLD="0"
 SOURCE_WLAN_CONFIG_DYNAMIC_SWITCH="0"
 SOURCE_WLAN_CONFIG_L1SS_DISABLE_THRESHOLD="0"
 SOURCE_WLAN_SUPPORT_80211AX=true
-# Snapdragon S24+ (WCN7851, Wi-Fi 7) in the US/CA models supports 6 GHz.
+# S24 Ultra (WCN7851, Wi-Fi 7) supports 6 GHz.
 SOURCE_WLAN_SUPPORT_80211AX_6GHZ=true
 SOURCE_WLAN_SUPPORT_APE_SERVICE=true
 SOURCE_WLAN_SUPPORT_LOWLATENCY=true
