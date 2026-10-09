@@ -18,11 +18,6 @@ SYSTEM_DEBLOAT+="
 system/bin/mafpc_write
 "
 
-# Auto Blocker
-SYSTEM_DEBLOAT+="
-system/app/Rampart
-"
-
 # Google
 PRODUCT_DEBLOAT+="
 priv-app/Velvet
