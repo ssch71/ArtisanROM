@@ -276,6 +276,11 @@ elif xxd -p -c 0 "$TMP_DIR/unknown/apex_payload/lib64/libbluetooth_jni.so" | \
     # August firmware variant used by current upstream donors.
     VK_FROM="28f7773948050037"
     VK_TO="28f777392a000014"
+elif xxd -p -c 0 "$TMP_DIR/unknown/apex_payload/lib64/libbluetooth_jni.so" | \
+        grep -q "88d6743948050037"; then
+    # BP4A.251205.006 (S24U base): ldrb w8, [x20, #0xd35]
+    VK_FROM="88d6743948050037"
+    VK_TO="88d674392a000014"
 fi
 
 HEX_PATCH "$TMP_DIR/unknown/apex_payload/lib64/libbluetooth_jni.so" \
