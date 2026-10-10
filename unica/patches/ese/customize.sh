@@ -1,3 +1,21 @@
+# --- Put at the very top of unica/patches/ese/customize.sh ---
+# Read the source firmware's real eSE vendor/COS instead of trusting the
+# hard-coded (unverified) values in unica/configs/qssi.sh.
+_SRC_FF="$FW_DIR/$(cut -d "/" -f 1 -s <<< "$SOURCE_FIRMWARE")_$(cut -d "/" -f 2 -s <<< "$SOURCE_FIRMWARE")/system/system/etc/floating_feature.xml"
+if [ -f "$_SRC_FF" ]; then
+    _V="$(GET_FLOATING_FEATURE_CONFIG "$_SRC_FF" "SEC_FLOATING_FEATURE_SECURITY_CONFIG_ESE_CHIP_VENDOR")"
+    _C="$(GET_FLOATING_FEATURE_CONFIG "$_SRC_FF" "SEC_FLOATING_FEATURE_SECURITY_CONFIG_ESE_COS_NAME")"
+    if [ "$_V" ] && [[ "$_V" != "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" ]]; then
+        LOGW "Source eSE vendor is \"$_V\" (config says \"$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR\"), using firmware value"
+        SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR="$_V"
+    fi
+    if [ "$_C" ] && [[ "$_C" != "$SOURCE_SECURITY_CONFIG_ESE_COS_NAME" ]]; then
+        LOGW "Source eSE COS is \"$_C\" (config says \"$SOURCE_SECURITY_CONFIG_ESE_COS_NAME\"), using firmware value"
+        SOURCE_SECURITY_CONFIG_ESE_COS_NAME="$_C"
+    fi
+fi
+unset _SRC_FF _V _C
+
 # SEC_PRODUCT_FEATURE_SECURITY_CONFIG_ESE_CHIP_VENDOR
 # SEC_PRODUCT_FEATURE_SECURITY_CONFIG_ESE_COS_NAME
 if [[ "$SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR" == "$TARGET_SECURITY_CONFIG_ESE_CHIP_VENDOR" ]] && \
