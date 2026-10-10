@@ -437,8 +437,7 @@ fi
 # implementation; applying it here creates invalid references (and currently
 # fails before the APK can be rebuilt).  Keep the stock camera path for this
 # platform until the feature is ported against the new capability model.
-if [ "$TARGET_PLATFORM_SDK_VERSION" -lt "35" ] && [ "$TARGET_PLATFORM" != "exynos990" ]; then
-    PATCHED=true
+if [ "$TARGET_PLATFORM_SDK_VERSION" -lt "35" ] && [ "$TARGET_PLATFORM" != "exynos990" ] && [ "$TARGET_PLATFORM" != "sm8250" ]; then    PATCHED=true
     if $TARGET_CAMERA_SUPPORT_MASS_APP_FLAVOR; then
         APPLY_PATCH "system" "system/priv-app/SamsungCamera/SamsungCamera.apk" \
             "$MODPATH/camera_mass/SamsungCamera.apk/0001-Backport-CONTROL_AVAILABLE_FEATURE_SECOND_PICTURE_CO.patch"
