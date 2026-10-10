@@ -105,6 +105,20 @@ jobs:
         run: |
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/make_rom.sh 
+
+      - name: Debug A2DP smali
+        if: failure() && matrix.target == 'z3q'
+        run: |
+          D=$(find out/target/z3q/apktool -type d -path "*Bluetooth.apk/smali/com/samsung/bt/a2dp" | head -1)
+          echo "DIR: $D"
+          grep -n "disconnectA2dpSink\|ACTION_REGISTER_A2DP_SINK_SERVICE\|bluetooth_a2dp_sink_mode" "$D"/InstantProfile*.smali || echo "NO MATCH"
+
+      - name: Upload A2DP smali
+        if: failure() && matrix.target == 'z3q'
+        uses: actions/upload-artifact@v4
+        with:
+          name: z3q-a2dp-smali
+          path: out/target/z3q/apktool/**/com/samsung/bt/a2dp/InstantProfile*.smali
           
       - name: Upload to Pixeldrain, GitHub Release, Split, XML
         if: github.event_name == 'workflow_dispatch'
