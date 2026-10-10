@@ -103,22 +103,70 @@ jobs:
 
       - name: Build ROM
         run: |
+          set -o pipefail
           source ./buildenv.sh ${{ matrix.target }}
-          ./scripts/make_rom.sh 
+          ./scripts/make_rom.sh 2>&1 | tee build.log
 
-      - name: Debug A2DP smali
-        if: failure() && matrix.target == 'z3q'
+      - name: Collect failed patch info
+        if: failure()
         run: |
-          D=$(find out/target/z3q/apktool -type d -path "*Bluetooth.apk/smali/com/samsung/bt/a2dp" | head -1)
-          echo "DIR: $D"
-          grep -n "disconnectA2dpSink\|ACTION_REGISTER_A2DP_SINK_SERVICE\|bluetooth_a2dp_sink_mode" "$D"/InstantProfile*.smali || echo "NO MATCH"
+          OUT="patch-fail/${{ matrix.target }}"
+          mkdir -p "$OUT"
+          [ -f build.log ] || { echo "no build.log"; exit 0; }
+          cp build.log "$OUT/"
 
-      - name: Upload A2DP smali
-        if: failure() && matrix.target == 'z3q'
+          # Every "git apply ... "<patch>"" command that make_rom.sh printed before failing
+          grep -oP 'git apply --directory="\K[^"]+(?=".*"[^"]+\.patch")|"\K[^"]+\.patch(?="\s*$)' build.log \
+            | paste - - | sort -u > "$OUT/failed_patches.tsv" || true
+
+          if [ ! -s "$OUT/failed_patches.tsv" ]; then
+            echo "No git apply failure found in log (build failed for another reason)."
+            exit 0
+          fi
+
+          {
+            echo "## ❌ Patch failures (${{ matrix.target }})"
+            echo
+          } >> "$GITHUB_STEP_SUMMARY"
+
+          n=0
+          while IFS=$'\t' read -r DIR PATCH; do
+            n=$((n+1))
+            CASE="$OUT/$n"
+            mkdir -p "$CASE/orig" "$CASE/rej"
+            cp "$PATCH" "$CASE/"
+            echo "$DIR" > "$CASE/target_dir.txt"
+
+            # Copy the untouched files the patch touches (git apply is atomic, so they're still stock)
+            grep -oP '^diff --git a/\K\S+' "$PATCH" | while read -r f; do
+              [ -f "$DIR/$f" ] && install -D "$DIR/$f" "$CASE/orig/$f" || echo "MISSING: $f" >> "$CASE/missing.txt"
+            done
+
+            # Re-apply on a scratch copy with --reject to get .rej files per hunk
+            cp -a "$CASE/orig/." "$CASE/rej/"
+            LC_ALL=C git apply --directory="$PWD/$CASE/rej" --unsafe-paths --reject --verbose \
+              "$PATCH" > "$CASE/reject.log" 2>&1 || true
+            find "$CASE/rej" -type f ! -name '*.rej' ! -name '*.orig' -delete
+
+            {
+              echo "### $(basename "$PATCH")"
+              echo "- target: \`${DIR#$GITHUB_WORKSPACE/}\`"
+              echo '```'
+              grep -E 'Applied patch|Rejected hunk|Applying patch|does not apply|patch failed|Reversed' "$CASE/reject.log" \
+                | sed "s#$PWD/$CASE/rej/##" || true
+              [ -f "$CASE/missing.txt" ] && cat "$CASE/missing.txt"
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          done < "$OUT/failed_patches.tsv"
+
+      - name: Upload failed patch info
+        if: failure()
         uses: actions/upload-artifact@v4
         with:
-          name: z3q-a2dp-smali
-          path: out/target/z3q/apktool/**/com/samsung/bt/a2dp/InstantProfile*.smali
+          name: patch-fail-${{ matrix.target }}
+          path: patch-fail/
+          if-no-files-found: ignore
+          retention-days: 7
 
       - name: Upload to Pixeldrain, GitHub Release, Split, XML
         if: github.event_name == 'workflow_dispatch'
