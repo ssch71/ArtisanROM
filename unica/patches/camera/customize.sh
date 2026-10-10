@@ -350,8 +350,13 @@ while IFS= read -r f; do
     HEX_PATCH "$f" "726f2e70726f647563742e6d6f64656c00" "726f2e626f6f742e656d2e6d6f64656c00"
 done < <(grep -r -w -l "ro.product.model" "$WORK_DIR/vendor" | grep "camera")
 if [ -f "$WORK_DIR/system/system/lib/libstagefright.so" ]; then
-    HEX_PATCH "$WORK_DIR/system/system/lib/libstagefright.so" \
-        "726f2e70726f647563742e6d6f64656c00" "726f2e626f6f742e656d2e6d6f64656c00"
+    if xxd -p -c 0 "$WORK_DIR/system/system/lib/libstagefright.so" | \
+            grep -q "726f2e70726f647563742e6d6f64656c00"; then
+        HEX_PATCH "$WORK_DIR/system/system/lib/libstagefright.so" \
+            "726f2e70726f647563742e6d6f64656c00" "726f2e626f6f742e656d2e6d6f64656c00"
+    else
+        echo "    - ro.product.model not found in lib/libstagefright.so, skipping"
+    fi
 else
     # Android 16 source firmware (for example S926B) is arm64-only and does
     # not ship the legacy 32-bit stagefright library.
