@@ -157,6 +157,10 @@ jobs:
             CASE="$OUT/hex_patch_$n"
             mkdir -p "$CASE"
             SCRIPT="${SRC%%:*}"; LINE="${SRC##*:}"
+            # Log paths may be relative to $WORK_DIR (e.g. /system/system/lib/x.so)
+            if [ ! -f "$BIN" ]; then
+              BIN="$(find out -type f -path "*${BIN}" 2>/dev/null | head -1)"
+            fi
             [ -f "$BIN" ] && cp "$BIN" "$CASE/"
             # The HEX_PATCH call itself (shows the replacement bytes)
             [ -f "$SCRIPT" ] && awk -v l="$LINE" 'NR>=l-6 && NR<=l+3 {printf "%s%5d  %s\n", (NR==l?">>":"  "), NR, $0}' "$SCRIPT" > "$CASE/call_site.txt"
@@ -215,6 +219,40 @@ jobs:
               echo '```'
             } >> "$GITHUB_STEP_SUMMARY"
           done < "$OUT/failed_hex.tsv"
+
+          # ---------- 3) SMALI_PATCH failures ----------
+          grep -oP '\(\K[^:()]+:[0-9]+(?=:SMALI_PATCH\) Failed)|SMALI_PATCH\) Failed.* in \K\S+\.smali' "$LOG" \
+            | paste - - > "$OUT/failed_smali.tsv" || true
+          n=0
+          while IFS=$'\t' read -r SRC SMALI; do
+            [ -n "$SMALI" ] || continue
+            FOUND=1; n=$((n+1))
+            CASE="$OUT/smali_patch_$n"
+            mkdir -p "$CASE"
+            SCRIPT="${SRC%%:*}"; LINE="${SRC##*:}"
+            F="$SMALI"
+            [ -f "$F" ] || F="$(find out -type f -path "*${SMALI}" 2>/dev/null | head -1)"
+            [ -f "$F" ] || F="$(find out -type f -path "*${SMALI#/system}" 2>/dev/null | head -1)"
+            [ -f "$F" ] && cp "$F" "$CASE/"
+            [ -f "$SCRIPT" ] && awk -v l="$LINE" 'NR>=l-8 && NR<=l+3 {printf "%s%5d  %s\n", (NR==l?">>":"  "), NR, $0}' "$SCRIPT" > "$CASE/call_site.txt"
+            # eSE context: real vendor/COS from every extracted firmware
+            grep -H -o 'ESE_[A-Z_]*>[^<]\+' out/fw/*/system/system/etc/floating_feature.xml > "$CASE/fw_ese_floating.txt" 2>/dev/null || true
+            {
+              echo "### SMALI_PATCH: $(basename "$SMALI")"
+              echo "- called from \`$SCRIPT:$LINE\`"
+              echo '```'
+              [ -f "$CASE/call_site.txt" ] && cat "$CASE/call_site.txt"
+              echo
+              if [ -f "$F" ]; then
+                echo "const-strings in $(basename "$F"):"
+                grep -n 'const-string' "$F" | head -40
+              else
+                echo "smali not found under out/"
+              fi
+              [ -s "$CASE/fw_ese_floating.txt" ] && { echo; echo "floating_feature eSE:"; sed 's#^out/fw/##' "$CASE/fw_ese_floating.txt"; }
+              echo '```'
+            } >> "$GITHUB_STEP_SUMMARY"
+          done < "$OUT/failed_smali.tsv"
 
           if [ "$FOUND" = 0 ]; then
             { echo '```'; grep -B2 -A2 -iE 'error|failed' "$LOG" | tail -30; echo '```'; } >> "$GITHUB_STEP_SUMMARY"
