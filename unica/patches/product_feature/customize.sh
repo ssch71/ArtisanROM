@@ -1008,8 +1008,11 @@ if $SOURCE_WLAN_SUPPORT_80211AX; then
             fi
         else
             if ! $TARGET_WLAN_SUPPORT_80211AX_6GHZ; then
-                # TODO handle this condition
-                LOG_MISSING_PATCHES "SOURCE_WLAN_SUPPORT_80211AX_6GHZ" "TARGET_WLAN_SUPPORT_80211AX_6GHZ"
+                # Report no 6GHz support from the Wi-Fi service; the UI only shows
+                # 6GHz bits for 6GHz scan results, which this hardware never sees.
+                SMALI_PATCH "system" "system/framework/semwifi-service.jar" \
+                    "smali/com/samsung/android/server/wifi/SemFrameworkFacade.smali" "return" \
+                    'isSupported6Ghz()Z' 'false'
             fi
         fi
     else
