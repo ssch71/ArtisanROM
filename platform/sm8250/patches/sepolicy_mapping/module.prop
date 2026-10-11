@@ -1,4 +1,4 @@
 id=sepolicy_mapping
 name=SELinux mapping fixes
-author=Rezoss
+author=ssch71
 description=Remove undeclared versioned attributes from system_ext/product mappings

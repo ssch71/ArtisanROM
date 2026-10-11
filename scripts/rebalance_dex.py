@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-# Copyright (c) 2026 Rezoss
+# Copyright (c) 2026 ssch71
 # SPDX-License-Identifier: GPL-3.0-or-later
 #
 # Keep every smali*/ folder of a decoded APK/JAR under the 64K dex reference
