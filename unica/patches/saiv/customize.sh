@@ -21,12 +21,21 @@ fi
 if [ ! -f "$WORK_DIR/vendor/etc/midas/moire_detection/moire_detection.tflite" ]; then
     ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "etc/midas/moire_detection/moire_detection.tflite" 0 0 644 "u:object_r:vendor_configs_file:s0"
 fi
-if [ ! "$(find "$WORK_DIR/vendor/etc/midas" -maxdepth 1 -type f -name "SRIBMQA_aiFiQA*" 2> /dev/null)" ]; then
-    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "etc/midas/SRIBMQA_aiFiQA_V100_FP32.tflite" 0 0 644 "u:object_r:vendor_configs_file:s0"
-fi
-if [ ! -f "$WORK_DIR/vendor/etc/midas/SRIBMQA_aiIQA_V100_FP32.tflite" ]; then
-    ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "etc/midas/SRIBMQA_aiIQA_V100_FP32.tflite" 0 0 644 "u:object_r:vendor_configs_file:s0"
-fi
+# Model file names/versions differ between source firmwares, so copy whatever
+# the source ships instead of a fixed file name.
+for MODEL in "SRIBMQA_aiFiQA" "SRIBMQA_aiIQA"; do
+    if [ ! "$(find "$WORK_DIR/vendor/etc/midas" -maxdepth 1 -type f -name "${MODEL}_*" 2> /dev/null)" ]; then
+        SRC_MODELS="$(find "$FW_DIR/$SOURCE_FIRMWARE_PATH/vendor/etc/midas" -maxdepth 1 -type f -name "${MODEL}_*" -printf "%f\n" 2> /dev/null)"
+        if [ "$SRC_MODELS" ]; then
+            while IFS= read -r f; do
+                ADD_TO_WORK_DIR "$SOURCE_FIRMWARE" "vendor" "etc/midas/$f" 0 0 644 "u:object_r:vendor_configs_file:s0"
+            done <<< "$SRC_MODELS"
+        else
+            LOG "- No ${MODEL} model in source firmware, skipping"
+        fi
+    fi
+done
+unset MODEL SRC_MODELS
 if [ "$(find "$WORK_DIR/vendor/etc/midas" -maxdepth 1 -type f -name "*UPSCALER_*_LITE*" 2> /dev/null)" ]; then
     # Ensure AI_UPSCALE LITE models are loaded if available
     if ! sed -n "/\"midasSR_devices\"/,/]/p" "$WORK_DIR/vendor/etc/midas/midas_config.json" | grep -q "\"$(GET_PROP "ro.product.device")\""; then
