@@ -115,8 +115,9 @@ jobs:
           sudo apt-get install -yq flex bison > /dev/null
           git clone -q --depth 1 -b 3.8.1 https://github.com/SELinuxProject/selinux /tmp/selinux
           make -s -C /tmp/selinux/libsepol -j"$(nproc)" > /dev/null
-          make -s -C /tmp/selinux/secilc secilc CFLAGS="-O2 -I/tmp/selinux/libsepol/include" LDFLAGS="-L/tmp/selinux/libsepol/src" > /dev/null
-          export LD_LIBRARY_PATH=/tmp/selinux/libsepol/src
+          make -s -C /tmp/selinux/libsepol install DESTDIR=/tmp/sepolroot > /dev/null
+          make -s -C /tmp/selinux/secilc secilc CFLAGS="-O2 -I/tmp/sepolroot/usr/include" LDFLAGS="-L/tmp/sepolroot/usr/lib" > /dev/null
+          export LD_LIBRARY_PATH=/tmp/sepolroot/usr/lib
           SECILC=/tmp/selinux/secilc/secilc
           SYS="$W/system/system/etc/selinux"
           SE="$W/system/system/system_ext/etc/selinux"; [ -d "$W/system_ext/etc/selinux" ] && SE="$W/system_ext/etc/selinux"
