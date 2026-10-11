@@ -112,7 +112,12 @@ jobs:
         run: |
           W="out/target/${{ matrix.target }}/work_dir"
           [ -d "$W" ] || { echo "no work_dir"; exit 0; }
-          sudo apt-get install -yq secilc > /dev/null
+          sudo apt-get install -yq flex bison > /dev/null
+          git clone -q --depth 1 -b 3.8.1 https://github.com/SELinuxProject/selinux /tmp/selinux
+          make -s -C /tmp/selinux/libsepol -j"$(nproc)" > /dev/null
+          make -s -C /tmp/selinux/secilc secilc CFLAGS="-O2 -I/tmp/selinux/libsepol/include" LDFLAGS="-L/tmp/selinux/libsepol/src" > /dev/null
+          export LD_LIBRARY_PATH=/tmp/selinux/libsepol/src
+          SECILC=/tmp/selinux/secilc/secilc
           SYS="$W/system/system/etc/selinux"
           SE="$W/system/system/system_ext/etc/selinux"; [ -d "$W/system_ext/etc/selinux" ] && SE="$W/system_ext/etc/selinux"
           PR="$W/product/etc/selinux"; VE="$W/vendor/etc/selinux"; OD="$W/odm/etc/selinux"
@@ -128,7 +133,7 @@ jobs:
             [ -f "$f" ] && ARGS+=("$f")
           done
           printf '  %s\n' "${ARGS[@]#$W/}"
-          if secilc -m -M true -G -N -c 30 "${ARGS[@]}" -o /tmp/policy -f /dev/null; then
+          if "$SECILC" -m -M true -G -N -c 30 "${ARGS[@]}" -o /tmp/policy -f /dev/null; then
             echo "::notice::SELinux policy compiles OK"
           else
             echo "::error::SELinux policy compile FAILED (this is what kills init)"
