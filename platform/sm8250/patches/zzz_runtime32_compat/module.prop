@@ -1,0 +1,4 @@
+id=runtime32_compat
+name=SM8250 32-bit runtime compatibility
+author=At30c, ssch71
+description=Provides Android 16 ARM32 Runtime, I18n, ART and system libraries for the 32-bit services of the legacy SM8250 vendor
