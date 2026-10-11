@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [x1q,y2q,z3q]
+        target: [y2q,z3q]
 
     steps:
       - name: Checkout repo
@@ -157,13 +157,6 @@ jobs:
           path: patch-fail/
           if-no-files-found: ignore
           retention-days: 7
-
-      - name: Upload to GoFile
-        run: |
-          ZIP_FILE=$(find out -maxdepth 1 -type f -name "*sign.zip" | head -n 1)
-          RESPONSE=$(curl -s -F "file=@$ZIP_FILE" -F "token=${{ secrets.GOFILE_TOKEN }}" -F "folderId=${{ secrets.GOFILE_FOLDER }}" "https://upload-eu-par.gofile.io/uploadFile")
-          echo "Download link:"
-          echo "$RESPONSE" | jq -r '.data.downloadPage'
 
       - name: Upload to Pixeldrain, GitHub Release, Split, XML
         if: github.event_name == 'workflow_dispatch'
