@@ -101,6 +101,12 @@ jobs:
         with:
           swap-size-gb: 12
 
+      - name: Build ROM
+        run: |
+          set -o pipefail
+          source ./buildenv.sh ${{ matrix.target }}
+          ./scripts/make_rom.sh 2>&1 | tee build.log
+
       - name: Check SELinux policy (same compile as init)
         if: always()
         run: |
@@ -127,12 +133,6 @@ jobs:
           else
             echo "::error::SELinux policy compile FAILED (this is what kills init)"
           fi
-
-      - name: Build ROM
-        run: |
-          set -o pipefail
-          source ./buildenv.sh ${{ matrix.target }}
-          ./scripts/make_rom.sh 2>&1 | tee build.log
 
       - name: Collect failed patch info
         if: failure()
