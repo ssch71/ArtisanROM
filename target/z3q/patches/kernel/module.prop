@@ -1,4 +1,4 @@
 id=kernel
 name=Kernel
-author=utkustnr,mianhamza
-description=Add prebuilt grass kernel images
+author=ssch71
+description=Add prebuilt not_kernel boot/dtbo images
