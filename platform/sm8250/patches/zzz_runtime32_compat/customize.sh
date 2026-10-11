@@ -18,12 +18,29 @@ LOG_STEP_IN "- Adding ARM32 system runtime from $DONOR"
 
 FS_CONFIG="$WORK_DIR/configs/fs_config-system"
 FILE_CONTEXT="$WORK_DIR/configs/file_context-system"
-ESCAPE() { sed -e 's/[.+]/\\&/g' <<< "$1"; }
+DONOR_FS="$SRC_DIR/prebuilts/samsung/$DONOR/fs_config-system"
+DONOR_FC="$SRC_DIR/prebuilts/samsung/$DONOR/file_context-system"
+ESCAPE() { sed -e 's/[.+*]/\\&/g' -e 's/\[/\\[/g' -e 's/\]/\\]/g' <<< "$1"; }
 ADD_ENTRY()
 {
     # $1: path relative to the system partition root (system/...), $2: mode, $3: label
-    grep -q -F "$1 " "$FS_CONFIG" 2> /dev/null || echo "$1 0 0 $2 capabilities=0x0" >> "$FS_CONFIG"
-    grep -q -F "/$(ESCAPE "$1") " "$FILE_CONTEXT" 2> /dev/null || echo "/$(ESCAPE "$1") $3" >> "$FILE_CONTEXT"
+    # Donor fs_config/file_context entries win over the defaults passed in.
+    local E="$1" M="$2" L="$3" X
+    X="$(ESCAPE "$E")"
+    if ! grep -q -F "$E " "$FS_CONFIG" 2> /dev/null; then
+        if grep -q -F "$E " "$DONOR_FS" 2> /dev/null; then
+            K="$E" awk '$1 == ENVIRON["K"]' "$DONOR_FS" | head -n 1 >> "$FS_CONFIG"
+        else
+            echo "$E 0 0 $M capabilities=0x0" >> "$FS_CONFIG"
+        fi
+    fi
+    if ! grep -q -F "/$X " "$FILE_CONTEXT" 2> /dev/null; then
+        if grep -q -F "/$X " "$DONOR_FC" 2> /dev/null; then
+            K="/$X" awk '$1 == ENVIRON["K"]' "$DONOR_FC" | head -n 1 >> "$FILE_CONTEXT"
+        else
+            echo "/$X $L" >> "$FILE_CONTEXT"
+        fi
+    fi
 }
 
 # 1) Multilib Runtime / I18n / ART APEXes replace the 64-bit-only ones
@@ -107,7 +124,7 @@ for ENTRY in \
     grep -q -F "/$(ESCAPE "$REL") " "$FILE_CONTEXT" 2> /dev/null || echo "/$(ESCAPE "$REL") $LABEL" >> "$FILE_CONTEXT"
 done
 
-unset DONOR DONOR_DIR FS_CONFIG FILE_CONTEXT KEY DONOR_APEX NAME OLD COUNT SRC REL DST \
+unset DONOR DONOR_DIR DONOR_FS DONOR_FC FS_CONFIG FILE_CONTEXT KEY DONOR_APEX NAME OLD COUNT SRC REL DST \
     TARGET_FIRMWARE_PATH LIB ENTRY TGT MODE LABEL LINK
 unset -f ESCAPE ADD_ENTRY
 LOG_STEP_OUT
