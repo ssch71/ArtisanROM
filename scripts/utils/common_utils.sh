@@ -151,16 +151,29 @@ _GET_SELINUX_LABEL()
         FILE="/$FILE"
     fi
 
+    # Generic entries like "/(vendor|system/vendor)(/.*)?" live in plat_file_contexts,
+    # so fall back to it after the partition's own file_contexts.
+    local PLAT_FC_FILE="$WORK_DIR/system/system/etc/selinux/plat_file_contexts"
+
     local LABEL
-    LABEL=$(perl -ne '
+    LABEL=$(FILE="$FILE" perl -ne '
         next if /^\s*#/ || /^\s*$/;
         s/\s+/ /g;
         my ($pattern, $label) = split(" ", $_, 3);
-        if ($ARGV[0] =~ /^$pattern$/) {
+        if ($ENV{FILE} =~ /^$pattern$/) {
             print "$label\n";
             exit;
         }
-    ' - "$FILE" <<< "$(tac "$FC_FILE")")
+    ' <<< "$(tac "$FC_FILE"; if [[ "$FC_FILE" != "$PLAT_FC_FILE" ]] && [ -f "$PLAT_FC_FILE" ]; then tac "$PLAT_FC_FILE"; fi)")
+
+    if [ ! "$LABEL" ]; then
+        case "$PARTITION" in
+            "vendor"|"odm") LABEL="u:object_r:vendor_file:s0" ;;
+            *) LABEL="u:object_r:system_file:s0" ;;
+        esac
+        LOGW "No SELinux label matched \"$FILE\", using $LABEL"
+    fi
+
     echo "$LABEL"
 }
 
