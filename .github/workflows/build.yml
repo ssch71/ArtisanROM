@@ -117,7 +117,7 @@ jobs:
           make -s -C /tmp/selinux/libsepol -j"$(nproc)" > /dev/null
           make -s -C /tmp/selinux/libsepol install DESTDIR=/tmp/sepolroot > /dev/null
           make -s -C /tmp/selinux/secilc secilc CFLAGS="-O2 -I/tmp/sepolroot/usr/include" LDFLAGS="-L/tmp/sepolroot/usr/lib" > /dev/null
-          export LD_LIBRARY_PATH=/tmp/sepolroot/usr/lib
+          export LD_LIBRARY_PATH=/tmp/sepolroot/lib:/tmp/sepolroot/usr/lib
           SECILC=/tmp/selinux/secilc/secilc
           SYS="$W/system/system/etc/selinux"
           SE="$W/system/system/system_ext/etc/selinux"; [ -d "$W/system_ext/etc/selinux" ] && SE="$W/system_ext/etc/selinux"
