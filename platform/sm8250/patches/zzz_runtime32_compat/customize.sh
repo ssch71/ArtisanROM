@@ -54,6 +54,7 @@ ADD_ENTRY "system/lib" 755 "u:object_r:system_lib_file:s0"
 while IFS= read -r -d '' SRC; do
     REL="${SRC#$DONOR_DIR/}"
     case "$REL" in *.0[1-9]|*.[1-9][0-9]) continue ;; esac
+    case "$REL" in lib/libc.so|lib/libdl.so|lib/libdl_android.so|lib/libm.so) continue ;; esac
     REL="${REL%.00}"
     DST="$WORK_DIR/system/system/$REL"
     if [ -d "$SRC" ] && [ ! -L "$SRC" ]; then
@@ -92,9 +93,7 @@ for ENTRY in \
     "system/lib/libm.so|/apex/com.android.runtime/lib/bionic/libm.so|644|u:object_r:system_lib_file:s0"; do
     IFS='|' read -r REL TGT MODE LABEL <<< "$ENTRY"
     LINK="$WORK_DIR/system/$REL"
-    if [ -e "$LINK" ] && [ ! -L "$LINK" ]; then
-        ABORT "Refusing to replace regular file: $REL"
-    fi
+    rm -f "$LINK"
     mkdir -p "$(dirname "$LINK")"
     ln -sfn "$TGT" "$LINK"
     if grep -q -F "$REL " "$FS_CONFIG" 2> /dev/null; then
