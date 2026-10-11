@@ -1,0 +1,4 @@
+id=boringssl_selftest
+name=Don't reboot on boringssl self test failure
+author=ssch71
+description=Drop reboot_on_failure from boringssl self test services and log their binaries
