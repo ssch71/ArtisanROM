@@ -30,7 +30,11 @@ ADD_ENTRY()
 for KEY in "com.android.runtime" "com.android.i18n" "android.art"; do
     DONOR_APEX="$(find "$DONOR_DIR/apex" -maxdepth 1 -name "*$KEY*" ! -name '*.0[1-9]' ! -name '*.[1-9][0-9]' 2> /dev/null | head -n 1)"
     if [ -z "$DONOR_APEX" ]; then
-        ABORT "Donor has no $KEY APEX"
+        DONOR_APEX="$(find "$SRC_DIR/prebuilts/samsung/r11sxxx/system/apex" -maxdepth 1 -name "*$KEY*" ! -name '*.0[1-9]' ! -name '*.[1-9][0-9]' 2> /dev/null | head -n 1)"
+        [ -n "$DONOR_APEX" ] && LOGW "- $DONOR has no $KEY APEX, falling back to r11sxxx"
+    fi
+    if [ -z "$DONOR_APEX" ]; then
+        ABORT "No multilib $KEY APEX available"
     fi
     NAME="$(basename "${DONOR_APEX%.00}")"
     for OLD in "$WORK_DIR/system/system/apex/"*"$KEY"*; do
