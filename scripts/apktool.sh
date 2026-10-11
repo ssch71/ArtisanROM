@@ -31,6 +31,13 @@ BUILD()
     mkdir -p "$OUTPUT_PATH/build/apk"
     cp -a "$OUTPUT_PATH/original/META-INF" "$OUTPUT_PATH/build/apk/META-INF"
 
+    # Keep every dex under the 64K method/field reference limit after patching
+    local REBALANCE_LOG
+    REBALANCE_LOG="$(python3 "$SRC_DIR/scripts/rebalance_dex.py" "$OUTPUT_PATH")" || exit 1
+    if [ -n "$REBALANCE_LOG" ]; then
+        LOG "- Rebalancing dex in ${INPUT_FILE//$WORK_DIR/}: $REBALANCE_LOG"
+    fi
+
     # Build APK with --shorten-resource-paths (https://developer.android.com/tools/aapt2#optimize_options)
     EVAL "apktool -JXmx${HEAP_SIZE}m b -j \"$THREAD_COUNT\" -p \"$FRAMEWORK_DIR\" -srp \"$OUTPUT_PATH\"" || exit 1
 
