@@ -27,7 +27,7 @@ jobs:
     strategy:
       fail-fast: false
       matrix:
-        target: [z3q]
+        target: [x1q,y2q,z3q]
 
     steps:
       - name: Checkout repo
@@ -100,6 +100,33 @@ jobs:
         uses: pierotofy/set-swap-space@v1.0
         with:
           swap-size-gb: 12
+
+      - name: Check SELinux policy (same compile as init)
+        if: always()
+        run: |
+          W="out/target/${{ matrix.target }}/work_dir"
+          [ -d "$W" ] || { echo "no work_dir"; exit 0; }
+          sudo apt-get install -yq secilc > /dev/null
+          SYS="$W/system/system/etc/selinux"
+          SE="$W/system/system/system_ext/etc/selinux"; [ -d "$W/system_ext/etc/selinux" ] && SE="$W/system_ext/etc/selinux"
+          PR="$W/product/etc/selinux"; VE="$W/vendor/etc/selinux"; OD="$W/odm/etc/selinux"
+          VER="$(cat "$VE/plat_sepolicy_vers.txt")"
+          echo "vendor sepolicy version: $VER"
+          echo "system mappings: $(ls "$SYS/mapping" | tr '\n' ' ')"
+          ARGS=("$SYS/plat_sepolicy.cil" "$SYS/mapping/$VER.cil")
+          [ -f "$SYS/mapping/$VER.compat.cil" ] && ARGS+=("$SYS/mapping/$VER.compat.cil")
+          for d in "$SE" "$PR"; do
+            for f in "$d"/*_sepolicy.cil "$d/mapping/$VER.cil"; do [ -f "$f" ] && ARGS+=("$f"); done
+          done
+          for f in "$VE/plat_pub_versioned.cil" "$VE/vendor_sepolicy.cil" "$OD/odm_sepolicy.cil"; do
+            [ -f "$f" ] && ARGS+=("$f")
+          done
+          printf '  %s\n' "${ARGS[@]#$W/}"
+          if secilc -m -M true -G -N -c 30 "${ARGS[@]}" -o /tmp/policy -f /dev/null; then
+            echo "::notice::SELinux policy compiles OK"
+          else
+            echo "::error::SELinux policy compile FAILED (this is what kills init)"
+          fi
 
       - name: Build ROM
         run: |
