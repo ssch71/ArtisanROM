@@ -22,7 +22,7 @@ source "$SRC_DIR/scripts/utils/build_utils.sh" || exit 1
 
 FORCE=false
 USE_APK_CACHE=false
-BUILD_ROM=false
+BUILD_ROM=true
 BUILD_ZIP=true
 SKIP_DEBUG_INSTALL=false
 DEBUG=false
