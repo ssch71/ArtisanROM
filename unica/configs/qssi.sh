@@ -63,7 +63,7 @@ SOURCE_LCD_SUPPORT_MDNIE_HW=true
 # TODO: verify eSE vendor/COS on the S928 firmware
 # Verified from S928B SecureElement.apk (UtilExtension.smali)
 SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR="NXP"
-SOURCE_SECURITY_CONFIG_ESE_COS_NAME="JCOP7.0U"
+SOURCE_SECURITY_CONFIG_ESE_COS_NAME="JCOP7.0P"
 # TODO: verify TelephonyFeatures in the US/CA framework; the Exynos EUX value
 #       (entitlement_sa) does not necessarily carry over.
 SOURCE_RIL_FEATURES="onebinary entitlement_sa"
