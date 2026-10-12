@@ -16,7 +16,8 @@ if [ "$SOURCE_PLATFORM_SDK_VERSION" -ge "36" ]; then
     DECODE_APK "system" "system/framework/framework.jar"
     PRODUCT_PACKAGES_RUNE="$(find "$APKTOOL_DIR/system/framework/framework.jar" \
         -type f -path '*/com/samsung/android/ProductPackagesRune.smali' -printf '%P\n' -quit)"
-    if [ "$PRODUCT_PACKAGES_RUNE" ]; then
+    if [ "$PRODUCT_PACKAGES_RUNE" ] && grep -q "SERVICE_SAMSUNG_BLOCKCHAIN:Z = true" \
+            "$APKTOOL_DIR/system/framework/framework.jar/$PRODUCT_PACKAGES_RUNE"; then
         SMALI_PATCH "system" "system/framework/framework.jar" \
             "$PRODUCT_PACKAGES_RUNE" "replaceall" \
             "SERVICE_SAMSUNG_BLOCKCHAIN:Z = true" \
