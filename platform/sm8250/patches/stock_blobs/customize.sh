@@ -25,8 +25,10 @@ ADD_TO_WORK_DIR "$TARGET_FIRMWARE" "system" "system/priv-app/GameDriver-SM8250/G
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Add r9qxxx libhwui"
-ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
-ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib64/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
+# Disabled: r9q libhwui is ABI-incompatible with the S24U source (protobuf)
+# ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
+# Disabled: r9q libhwui is ABI-incompatible with the S24U source (protobuf)
+# ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib64/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
 # The r9q libhwui links versioned AIDL NDK libs (e.g. graphics.common-V6) that
 # a newer source no longer ships. Frozen AIDL versions are supersets with the
 # same symbols, so point each missing -V<n>-ndk dependency at the highest

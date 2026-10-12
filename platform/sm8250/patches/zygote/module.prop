@@ -1,0 +1,4 @@
+id=zygote
+name=Match ro.zygote to the source init scripts
+author=ssch71
+description=Point ro.zygote at a zygote init script the system image actually ships
