@@ -159,8 +159,36 @@ jobs:
           retention-days: 7
 
       - name: Upload to GoFile
+        id: gofile
+        continue-on-error: true
+        timeout-minutes: 40
         run: |
           ZIP_FILE=$(find out -maxdepth 1 -type f -name "*sign.zip" | head -n 1)
-          RESPONSE=$(curl -s -F "file=@$ZIP_FILE" -F "token=${{ secrets.GOFILE_TOKEN }}" -F "folderId=${{ secrets.GOFILE_FOLDER }}" "https://upload-eu-par.gofile.io/uploadFile")
-          echo "Download link:"
-          echo "$RESPONSE" | jq -r '.data.downloadPage'
+          [ -n "$ZIP_FILE" ] || { echo "::error::No signed zip found"; exit 1; }
+          echo "Uploading $ZIP_FILE ($(du -h "$ZIP_FILE" | cut -f1))"
+          for SERVER in upload upload-eu-par upload-na-phx upload-ap-sgp; do
+            for TRY in 1 2; do
+              echo "- $SERVER.gofile.io (try $TRY)"
+              RESPONSE=$(curl -sS --connect-timeout 30 --max-time 1500 --retry 2 --retry-delay 10 \
+                -F "file=@$ZIP_FILE" -F "token=${{ secrets.GOFILE_TOKEN }}" -F "folderId=${{ secrets.GOFILE_FOLDER }}" \
+                "https://$SERVER.gofile.io/uploadFile" || true)
+              LINK=$(echo "$RESPONSE" | jq -r '.data.downloadPage // empty' 2>/dev/null || true)
+              if [ -n "$LINK" ]; then
+                echo "Download link: $LINK"
+                echo "### ${{ matrix.target }}: $LINK" >> "$GITHUB_STEP_SUMMARY"
+                exit 0
+              fi
+              echo "  failed: ${RESPONSE:0:200}"
+            done
+          done
+          echo "::warning::GoFile upload failed on all servers, falling back to workflow artifact"
+          exit 1
+
+      - name: Upload ROM as artifact (GoFile fallback)
+        if: steps.gofile.outcome == 'failure'
+        uses: actions/upload-artifact@v4
+        with:
+          name: rom-${{ matrix.target }}
+          path: out/*sign.zip
+          compression-level: 0
+          retention-days: 3
