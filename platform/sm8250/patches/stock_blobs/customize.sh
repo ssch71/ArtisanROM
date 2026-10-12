@@ -27,6 +27,27 @@ LOG_STEP_OUT
 LOG_STEP_IN "- Add r9qxxx libhwui"
 ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
 ADD_TO_WORK_DIR "r9qxxx" "system" "system/lib64/libhwui.so" 0 0 644 "u:object_r:system_lib_file:s0"
+# The r9q libhwui links versioned AIDL NDK libs (e.g. graphics.common-V6) that
+# a newer source no longer ships. Frozen AIDL versions are supersets with the
+# same symbols, so point each missing -V<n>-ndk dependency at the highest
+# version the source has. Without this zygote, bootanimation and mediaserver
+# fail to link libhwui and the device hangs at boot.
+for LIBDIR in lib lib64; do
+    HWUI="$WORK_DIR/system/system/$LIBDIR/libhwui.so"
+    [ -f "$HWUI" ] || continue
+    while read -r NEEDED; do
+        [ -e "$WORK_DIR/system/system/$LIBDIR/$NEEDED" ] && continue
+        BASE="${NEEDED%-V*-ndk.so}"
+        NEWEST="$(find "$WORK_DIR/system/system/$LIBDIR" -maxdepth 1 -name "$BASE-V*-ndk.so" -printf '%f\n' 2> /dev/null | sort -V | tail -n 1)"
+        if [ -n "$NEWEST" ]; then
+            LOG "- $LIBDIR/libhwui.so: $NEEDED -> $NEWEST"
+            EVAL "patchelf --replace-needed \"$NEEDED\" \"$NEWEST\" \"$HWUI\""
+        else
+            LOGW "- $LIBDIR/libhwui.so needs $NEEDED, which the source does not provide"
+        fi
+    done < <(readelf -d "$HWUI" | sed -n 's/.*(NEEDED).*\[\(.*-V[0-9]*-ndk\.so\)\].*/\1/p')
+done
+unset LIBDIR HWUI NEEDED BASE NEWEST
 LOG_STEP_OUT
 
 
