@@ -66,7 +66,7 @@ SOURCE_SECURITY_CONFIG_ESE_CHIP_VENDOR="NXP"
 SOURCE_SECURITY_CONFIG_ESE_COS_NAME="JCOP7.0P"
 # TODO: verify TelephonyFeatures in the US/CA framework; the Exynos EUX value
 #       (entitlement_sa) does not necessarily carry over.
-SOURCE_RIL_FEATURES="onebinary entitlement_sa"
+SOURCE_RIL_FEATURES="none"
 SOURCE_RIL_SIM_CONFIG_MULTISIM_TRAYCOUNT="2"
 SOURCE_RIL_SUPPORT_WATERPROOF_SIM_TRAY_MSG=true
 # TODO: verify SemWifiInjector literal on the Snapdragon firmware (Exynos was 2)
