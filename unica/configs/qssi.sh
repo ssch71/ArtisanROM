@@ -8,8 +8,7 @@
 # reproducible instead of silently moving with monthly FUS updates.
 # TODO: fill in the real model/CSC/IMEI. SM-S928B/EUX (global) is Snapdragon too;
 #       SM-S928U1/XAA is the unlocked US model, SM-S928U is carrier-locked.
-SOURCE_FIRMWARE="SM-S928B/EUX/353437179526139"
-
+SOURCE_FIRMWARE="SM-S928Q/SJP/350972960121206"
 SOURCE_EXTRA_FIRMWARES=()
 SOURCE_PLATFORM_SDK_VERSION=36
 # S24 Ultra launched with Android 14 (API 34).
