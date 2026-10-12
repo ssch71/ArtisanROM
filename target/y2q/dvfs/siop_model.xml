@@ -59,12 +59,7 @@
 
     <overheatcontrol>
         <complex>
-            <MW     formula="AP*BAT"    temp="490.450"     />
-            <LTB    formula="AP*BAT"    temp="490.450"     />
-            <LCD    formula="AP*BAT"    temp="470.430"     />
-            <GDM    formula="AP*BAT"    temp="430.430"     />
-            <GDMLTB formula="AP*BAT"    temp="450.450"     />
-            <SS     formula="AP*BAT*PA" temp="590.450.650" />
+            <DEX formula="SKIN" temp="470" />
         </complex>
     </overheatcontrol>
 
