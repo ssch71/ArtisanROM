@@ -102,17 +102,24 @@ sed -i -E \
 LOG_STEP_OUT
 
 LOG_STEP_IN "- Allowing mremap in vendor Codec2 seccomp policies"
-C2_POLICY_FOUND=false
+C2_POLICY_FIRST=""
+C2_POLICY_PATCHED=false
 while IFS= read -r f; do
-    C2_POLICY_FOUND=true
+    [ -z "$C2_POLICY_FIRST" ] && C2_POLICY_FIRST="$f"
     if grep -q "^mremap:" "$f"; then
-        LOG "- mremap already allowed in $(basename "$f")"
-        continue
+        sed -i 's/^mremap:.*/mremap: 1/' "$f"
+        C2_POLICY_PATCHED=true
+        LOG "- Relaxed mremap rule in $(basename "$f")"
     fi
-    [ -n "$(tail -c1 "$f")" ] && echo >> "$f"
-    echo "mremap: 1" >> "$f"
-    LOG "- Added mremap to $(basename "$f")"
 done < <(find "$WORK_DIR/vendor/etc/seccomp_policy" -type f \( -iname "*c2*" -o -iname "*codec2*" \) 2> /dev/null)
-$C2_POLICY_FOUND || LOGW "No Codec2 seccomp policy found in vendor/etc/seccomp_policy"
-unset C2_POLICY_FOUND
+if ! $C2_POLICY_PATCHED; then
+    if [ -n "$C2_POLICY_FIRST" ]; then
+        [ -n "$(tail -c1 "$C2_POLICY_FIRST")" ] && echo >> "$C2_POLICY_FIRST"
+        echo "mremap: 1" >> "$C2_POLICY_FIRST"
+        LOG "- Added mremap to $(basename "$C2_POLICY_FIRST")"
+    else
+        LOGW "No Codec2 seccomp policy found in vendor/etc/seccomp_policy"
+    fi
+fi
+unset C2_POLICY_FIRST C2_POLICY_PATCHED
 LOG_STEP_OUT
