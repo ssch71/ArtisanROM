@@ -1,13 +1,41 @@
 SOURCE_PRODUCT_NAME="$(GET_PROP "system" "ro.product.system.name")"
 TARGET_PRODUCT_NAME="$(GET_PROP "vendor" "ro.product.vendor.name")"
 
+_LOG() { if $DEBUG; then LOGW "$1"; else ABORT "$1"; fi }
+
 if [[ "$SOURCE_PRODUCT_NAME" == "$TARGET_PRODUCT_NAME" ]]; then
-    LOG "\033[0;33m! Nothing to do\033[0m"
+    # Earlier patches (e.g. "Edge lighting fix") may already have rewritten
+    # ro.product.system.name to the target product name. The source RRO APKs
+    # are still named after the source product in that case, so there is
+    # nothing to rename, but the target framework-res overlay must still be
+    # applied (otherwise the source device brightness/AOD/etc. values stay).
+    LOG "- Product names already match, skipping RRO renaming"
+    while IFS= read -r f; do
+        f="$(basename "$f")"
+
+        if [ ! -d "$SRC_DIR/target/$TARGET_CODENAME/overlay" ]; then
+            _LOG "Folder not found: target/$TARGET_CODENAME/overlay"
+            continue
+        fi
+        DECODE_APK "product" "overlay/$f"
+        LOG_STEP_IN "- Applying target product overlay to $f"
+        EVAL "rm -rf \"$APKTOOL_DIR/product/overlay/$f/res\""
+        EVAL "cp -a \"$SRC_DIR/target/$TARGET_CODENAME/overlay\" \"$APKTOOL_DIR/product/overlay/$f/res\""
+        if [ "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_LCD_SUPPORT_EXTRA_BRIGHTNESS")" ] && \
+                ! grep -q -w "config_Extra_Brightness_Display_Solution_Brightness_Value" "$SRC_DIR/target/$TARGET_CODENAME/overlay/values/arrays.xml" 2> /dev/null; then
+            _LOG "SEC_FLOATING_FEATURE_LCD_SUPPORT_EXTRA_BRIGHTNESS is set but \"config_Extra_Brightness_Display_Solution_Brightness_Value\" is missing in arrays.xml"
+        fi
+        if [[ "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FRAMEWORK_CONFIG_AOD_ITEM")" =~ activeclock|clocktransition ]] && \
+                ! grep -q -w "physical_power_button_center_screen_location_y" "$SRC_DIR/target/$TARGET_CODENAME/overlay/values/dimens.xml" 2> /dev/null; then
+            _LOG "AOD Clock Transition is enabled but \"physical_power_button_center_screen_location_y\" is missing in dimens.xml"
+        fi
+        LOG_STEP_OUT
+    done < <(find "$WORK_DIR/product/overlay" -maxdepth 1 -type f -name "framework-res*.apk")
+
     unset SOURCE_PRODUCT_NAME TARGET_PRODUCT_NAME
+    unset -f _LOG
     return 0
 fi
-
-_LOG() { if $DEBUG; then LOGW "$1"; else ABORT "$1"; fi }
 
 while IFS= read -r f; do
     f="$(basename "$f")"
