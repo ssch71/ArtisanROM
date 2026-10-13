@@ -1,0 +1,4 @@
+id=rro
+name=Skip MediaCodecList probe in StorageManagerService
+author=ssch71
+description=Unblock the StorageManagerService handler thread (boot-time emulated;0 mount, MediaProvider external_primary)

@@ -1,4 +1,0 @@
-id=rro
-name=Skip NandswapManager init
-author=ssch71
-description=Skip NandswapManager init in StorageManagerService H_SYSTEM_READY (experimental, z3q boot-time emulated;0 mount)
