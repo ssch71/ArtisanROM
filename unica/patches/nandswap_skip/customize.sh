@@ -2,9 +2,11 @@
 # On this 4.19 kernel the StorageManagerService handler thread stops after
 # H_SYSTEM_READY, so emulated;0 is never mounted at boot (experimental).
 DECODE_APK "system" "system/framework/services.jar"
-SMALI_FILE="$APKTOOL_DIR/system/system/framework/services.jar/smali/com/android/server/StorageManagerService\$Callbacks.smali"
-if [ ! -f "$SMALI_FILE" ]; then
-    ABORT "File not found: $SMALI_FILE"
+# the class may live in smali, smali_classes2, ... depending on the dex split
+SMALI_FILE="$(find "$APKTOOL_DIR/system/system/framework/services.jar" -type f \
+    -path "*/com/android/server/StorageManagerService\$Callbacks.smali" | head -n 1)"
+if [ -z "$SMALI_FILE" ] || [ ! -f "$SMALI_FILE" ]; then
+    ABORT "File not found: StorageManagerService\$Callbacks.smali in services.jar"
 fi
 
 LOG "- Skipping NandswapManager init in StorageManagerService"
