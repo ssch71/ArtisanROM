@@ -100,3 +100,19 @@ sed -i -E \
     's/^([^#].*?)forceencrypt=[^,]*(.*)$/# &\n\1encryptable\2/' \
     "$WORK_DIR/vendor/etc/fstab.qcom"
 LOG_STEP_OUT
+
+LOG_STEP_IN "- Allowing mremap in vendor Codec2 seccomp policies"
+C2_POLICY_FOUND=false
+while IFS= read -r f; do
+    C2_POLICY_FOUND=true
+    if grep -q "^mremap:" "$f"; then
+        LOG "- mremap already allowed in $(basename "$f")"
+        continue
+    fi
+    [ -n "$(tail -c1 "$f")" ] && echo >> "$f"
+    echo "mremap: 1" >> "$f"
+    LOG "- Added mremap to $(basename "$f")"
+done < <(find "$WORK_DIR/vendor/etc/seccomp_policy" -type f \( -iname "*c2*" -o -iname "*codec2*" \) 2> /dev/null)
+$C2_POLICY_FOUND || LOGW "No Codec2 seccomp policy found in vendor/etc/seccomp_policy"
+unset C2_POLICY_FOUND
+LOG_STEP_OUT
