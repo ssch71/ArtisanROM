@@ -123,3 +123,8 @@ if ! $C2_POLICY_PATCHED; then
 fi
 unset C2_POLICY_FIRST C2_POLICY_PATCHED
 LOG_STEP_OUT
+
+LOG_STEP_IN "- Removing 24-bit deep_buffer output (fixes no media sound on speaker)"
+sed -i '/<mixPort name="deep_buffer"/,/<\/mixPort>/d' "$WORK_DIR/vendor/etc/audio_policy_configuration_base.xml"
+sed -i 's/deep_buffer,//g' "$WORK_DIR/vendor/etc/audio_policy_configuration_base.xml"
+LOG_STEP_OUT
