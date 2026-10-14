@@ -135,13 +135,18 @@ system/app/KidsHome_Installer
 "
 
 # Bixby
+#SYSTEM_DEBLOAT+="
+#system/priv-app/Bixby
+#system/app/BixbyWakeup
+#system/etc/preferred-apps/com.samsung.android.bixby.agent.xml
+#system/etc/permissions/privapp-permissions-com.samsung.android.bixby.agent.xml
+#system/etc/permissions/privapp-permissions-com.samsung.android.bixby.wakeup.xml
+#system/etc/permissions/signature-permissions-com.samsung.android.bixby.agent.xml
+#"
+
+#AREmoji
 SYSTEM_DEBLOAT+="
-system/priv-app/Bixby
-system/app/BixbyWakeup
-system/etc/preferred-apps/com.samsung.android.bixby.agent.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.bixby.agent.xml
-system/etc/permissions/privapp-permissions-com.samsung.android.bixby.wakeup.xml
-system/etc/permissions/signature-permissions-com.samsung.android.bixby.agent.xml
+system/priv-app/AREmoji
 "
 
 # LED Cover Service
@@ -210,10 +215,10 @@ system/app/MinusOnePage
 "
 
 # Samsung Language Core
-SYSTEM_DEBLOAT+="
-system/etc/permissions/signature-permissions-com.samsung.android.offline.languagemodel.xml
-system/priv-app/OfflineLanguageModel_stub
-"
+#SYSTEM_DEBLOAT+="
+#system/etc/permissions/signature-permissions-com.samsung.android.offline.languagemodel.xml
+#system/priv-app/OfflineLanguageModel_stub
+#"
 
 # Google Messages
 PRODUCT_DEBLOAT+="
@@ -285,6 +290,11 @@ SYSTEM_DEBLOAT+="
 system/etc/permissions/privapp-permissions-com.samsung.android.settingshelper.xml
 system/etc/sysconfig/settingshelper.xml
 system/priv-app/SHClient
+"
+
+#BookmarkProvider
+SYSTEM_DEBLOAT+="
+system/app/VoiceAccess
 "
 
 # Smart Touch Call

@@ -13,8 +13,33 @@ if [ ! "$(GET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FMRADIO_SUPPORT_EXTE
 fi
 
 ADD_TO_WORK_DIR "$MODPATH" "system" "." 0 0 755 "u:object_r:system_file:s0"
+
+# Ship the app as a preloaded (VPL) app instead of a priv-app, so it is
+# installed on first boot but can be uninstalled by the user.
+FM_APK_PATH="system/preload/FMRadio/com.sec.android.app.fm-mesa==/base.apk"
+
 LOG "- Downloading latest FM Radio app"
+mkdir -p "$WORK_DIR/system/$(dirname "$FM_APK_PATH")"
 DOWNLOAD_FILE "$(GET_GALAXY_STORE_DOWNLOAD_URL "com.sec.android.app.fm")" \
-    "$WORK_DIR/system/system/priv-app/HybridRadio/HybridRadio.apk"
-SET_METADATA "system" "system/priv-app/HybridRadio" 0 0 755 "u:object_r:system_file:s0"
-SET_METADATA "system" "system/priv-app/HybridRadio/HybridRadio.apk" 0 0 644 "u:object_r:system_file:s0"
+    "$WORK_DIR/system/$FM_APK_PATH"
+
+# Drop the system copy if the source firmware ships one
+[ -d "$WORK_DIR/system/system/priv-app/HybridRadio" ] && \
+    DELETE_FROM_WORK_DIR "system" "system/priv-app/HybridRadio"
+
+while IFS= read -r i; do
+    i="${i//$WORK_DIR\/system\//}"
+
+    if [ -d "$WORK_DIR/system/$i" ]; then
+        SET_METADATA "system" "$i" 0 0 755 "u:object_r:system_file:s0"
+    else
+        SET_METADATA "system" "$i" 0 0 644 "u:object_r:system_file:s0"
+    fi
+
+    if [[ "$i" == *".apk" ]] && \
+            ! grep -q "$i" "$WORK_DIR/system/system/etc/vpl_apks_count_list.txt"; then
+        LOG "- Adding \"$i\" to /system/system/etc/vpl_apks_count_list.txt"
+        EVAL "echo \"$i\" >> \"$WORK_DIR/system/system/etc/vpl_apks_count_list.txt\""
+    fi
+done <<< "$(find "$WORK_DIR/system/system/preload")"
+unset FM_APK_PATH

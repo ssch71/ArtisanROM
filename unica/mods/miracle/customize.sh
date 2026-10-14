@@ -129,8 +129,6 @@ ADD_TO_WORK_DIR "m2sxxx" "system" \
 ADD_TO_WORK_DIR "m2sxxx" "system" \
     "system/etc/sysconfig/moments.xml" 0 0 644 "u:object_r:system_file:s0"
 ADD_TO_WORK_DIR "m2sxxx" "system" "system/priv-app/Moments/Moments.apk" 0 0 644 "u:object_r:system_file:s0"
-ADD_TO_WORK_DIR "$MODPATH" "system" \
-    "system/priv-app/SamsungSmartSuggestions/SamsungSmartSuggestions.apk" 0 0 644 "u:object_r:system_file:s0"
 
 SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_FRAMEWORK_SUPPORT_PERSONALIZED_DATA_CORE" "TRUE"
 LOG_STEP_OUT

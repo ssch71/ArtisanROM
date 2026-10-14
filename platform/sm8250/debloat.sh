@@ -18,6 +18,13 @@ SYSTEM_DEBLOAT+="
 system/bin/mafpc_write
 "
 
+#MobileFeliCaMenu
+SYSTEM_DEBLOAT+="
+system/priv-app/MobileFeliCaMenuMainApp
+system/priv-app/MobileFeliCaSettingApp
+system/priv-app/MobileFeliCaWebPluginBoot
+"
+
 # Google
 PRODUCT_DEBLOAT+="
 priv-app/Velvet
