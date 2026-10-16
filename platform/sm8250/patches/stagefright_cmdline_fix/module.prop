@@ -1,0 +1,4 @@
+id=stagefright_cmdline_fix
+name=Fix ACodec cmdline fread overflow
+author=ssch71
+description=Stop screen recorder crashing on the OMX AVC encoder (FORTIFY fread abort in ACodec::reconfigEncoder4OtherApps)
