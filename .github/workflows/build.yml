@@ -107,6 +107,25 @@ jobs:
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/make_rom.sh 2>&1 | tee build.log
 
+     - name: Collect patch debug files
+        if: failure()
+        run: |
+          mkdir -p /tmp/patchdbg
+          # rejected hunks / leftovers from failed patches
+          find out -type f \( -name "*.rej" -o -name "*.orig" \) -exec cp --parents {} /tmp/patchdbg \; 2>/dev/null || true
+          # smali files that the failed git apply patches target
+          find out/target -type f \( -name "AdapterService.smali" -o -name 'AdapterService$7.smali' -o -name "LlmClientInterceptor.smali" \) \
+            -exec cp --parents {} /tmp/patchdbg \; 2>/dev/null || true
+          find /tmp/patchdbg -type f | head -50
+
+      - name: Upload patch debug files
+        if: failure()
+        uses: actions/upload-artifact@v4
+        with:
+          name: patch-debug-${{ matrix.target }}
+          path: /tmp/patchdbg
+          if-no-files-found: warn
+          
       - name: Upload to GoFile
         id: gofile
         continue-on-error: true
