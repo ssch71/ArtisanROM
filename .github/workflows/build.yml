@@ -107,39 +107,6 @@ jobs:
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/make_rom.sh 2>&1 | tee build.log
 
-      - name: Collect 32-bit ABI info
-        if: always()
-        run: |
-          W="out/target/${{ matrix.target }}/work_dir"
-          mkdir -p abi-info
-          {
-            echo "### app_process / zygote / linker in work_dir"
-            ls -l "$W"/system/system/bin 2>/dev/null | grep -E "app_process|linker|dex2oat|zygote" || true
-            find "$W" \( -name "init.zygote*.rc" -o -name "app_process*" \) 2>/dev/null || true
-            echo "### abi props in work_dir"
-            grep -rnE "ro\.zygote|abilist|isa\.arm|dex2oat" "$W"/system/system/build.prop "$W"/vendor/build.prop "$W"/vendor/default.prop "$W"/odm/etc/build.prop 2>/dev/null || true
-            echo "### apex"
-            ls -l "$W"/system/system/apex 2>/dev/null | grep -E "art|runtime|i18n" || true
-            echo "### framework arm/boot"
-            ls "$W"/system/system/framework 2>/dev/null | grep -E "^arm|boot" | head -20 || true
-            for F in out/fw/*; do
-              [ -d "$F" ] || continue
-              echo "### $F"
-              find "$F" \( -name "init.zygote*.rc" -o -name "app_process*" \) 2>/dev/null | head || true
-              grep -rhE "ro\.zygote|abilist|isa\.arm" "$F"/system/system/build.prop "$F"/vendor/build.prop 2>/dev/null | head -12 || true
-            done
-          } > abi-info/info.txt 2>&1
-          find "$W" out/fw -name "init.zygote*.rc" -exec cp --parents {} abi-info \; 2>/dev/null || true
-
-      - name: Upload 32-bit ABI info
-        if: always()
-        uses: actions/upload-artifact@v4
-        with:
-          name: abi-info-${{ matrix.target }}
-          path: abi-info/
-          if-no-files-found: ignore
-          retention-days: 7
-
       - name: Check SELinux policy (same compile as init)
         if: always()
         run: |
