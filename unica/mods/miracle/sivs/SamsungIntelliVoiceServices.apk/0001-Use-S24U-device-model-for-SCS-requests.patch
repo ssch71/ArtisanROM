@@ -10,7 +10,7 @@ Now Brief custom-card generation instead of changing global build props.
 diff --git a/smali/com/samsung/android/intellivoiceservice/common/connection/server/LlmClientInterceptor.smali b/smali/com/samsung/android/intellivoiceservice/common/connection/server/LlmClientInterceptor.smali
 --- a/smali/com/samsung/android/intellivoiceservice/common/connection/server/LlmClientInterceptor.smali
 +++ b/smali/com/samsung/android/intellivoiceservice/common/connection/server/LlmClientInterceptor.smali
-@@ -209,11 +209,7 @@
+@@ -209,10 +209,6 @@
 
      move-result-object v3
 
