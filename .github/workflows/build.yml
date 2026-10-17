@@ -107,7 +107,7 @@ jobs:
           source ./buildenv.sh ${{ matrix.target }}
           ./scripts/make_rom.sh 2>&1 | tee build.log
 
-     - name: Collect patch debug files
+      - name: Collect patch debug files
         if: failure()
         run: |
           mkdir -p /tmp/patchdbg
