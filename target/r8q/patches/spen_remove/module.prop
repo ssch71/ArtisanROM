@@ -1,0 +1,4 @@
+id=spen_remove
+name=Remove S Pen
+author=ssch71
+description=Remove the S Pen stack inherited from the source firmware
