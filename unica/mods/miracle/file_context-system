@@ -2,3 +2,5 @@
 /system/priv-app u:object_r:system_file:s0
 /system/priv-app/SamsungSmartSuggestions u:object_r:system_file:s0
 /system/priv-app/SamsungSmartSuggestions/SamsungSmartSuggestions\.apk u:object_r:system_file:s0
+/system/priv-app/SamsungIntelliVoiceServices u:object_r:system_file:s0
+/system/priv-app/SamsungIntelliVoiceServices/SamsungIntelliVoiceServices\.apk u:object_r:system_file:s0

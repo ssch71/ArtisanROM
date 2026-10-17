@@ -39,6 +39,11 @@ ADD_TO_WORK_DIR "m2sxxx" "system" \
     "system/media/audio/ui/Media_preview_Over_the_horizon.ogg" 0 0 644 "u:object_r:system_file:s0"
 APPLY_PATCH "system" "system/priv-app/SecSoundPicker/SecSoundPicker.apk" \
     "$MODPATH/brandsound/SecSoundPicker.apk/0001-Enable-SUPPORT_SAMSUNG_BRAND_SOUND_ONEUI_7.patch"
+    
+ADD_TO_WORK_DIR "zeroltexxx" "system" \
+    "system/media/audio/ringtones/Morning_Flower.ogg" \
+    "system/media/audio/ringtones/SoundTheme/Galaxy/Morning_Flower.ogg" \
+    0 0 644 "u:object_r:system_file:s0"
 LOG_STEP_OUT
 
 # Adaptive colour tone
@@ -174,6 +179,14 @@ else
 fi
 unset SEMANTIC_SEARCH_RUNE SEMANTIC_SEARCH_VERSION_METHOD
 SET_FLOATING_FEATURE_CONFIG "SEC_FLOATING_FEATURE_MSCH_SUPPORT_NLSEARCH" "TRUE"
+LOG_STEP_OUT
+
+# S24U
+LOG "- Patch SamsungIntelliVoiceServices SCS device-model header to SM-S928B"
+ADD_TO_WORK_DIR "$MODPATH" "system" \
+    "system/priv-app/SamsungIntelliVoiceServices/SamsungIntelliVoiceServices.apk" 0 0 644 
+APPLY_PATCH "system" "system/priv-app/SamsungIntelliVoiceServices/SamsungIntelliVoiceServices.apk" \
+     "$MODPATH/sivs/SamsungIntelliVoiceServices.apk/0001-Use-S24U-device-model-for-SCS-requests.patch"
 LOG_STEP_OUT
 
 # Game Booster

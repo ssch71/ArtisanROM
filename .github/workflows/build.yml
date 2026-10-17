@@ -105,10 +105,26 @@ jobs:
         run: |
           set -o pipefail
           source ./buildenv.sh ${{ matrix.target }}
+<<<<<<< HEAD
           ./scripts/make_rom.sh 2>&1 | tee build.log
 
       - name: Check SELinux policy (same compile as init)
         if: always()
+=======
+          if [ "${{ github.event.inputs.build_type }}" = "debug" ]; then
+            ./scripts/make_rom.sh --beta
+          else
+            ./scripts/make_rom.sh
+          fi
+
+      - name: Upload to Pixeldrain, GitHub Release, Split, XML
+        if: github.event_name == 'workflow_dispatch'
+        env:
+          PIXELDRAIN_API_KEY: ${{ secrets.PD_API }}
+          GH_TOKEN: ${{ secrets.PAT }}
+          RELEASE_REPO: "ArtisanROM/rom_resources"
+          BUILD_TYPE: ${{ github.event.inputs.build_type }}
+>>>>>>> upstream/sixteen-qpr2
         run: |
           W="out/target/${{ matrix.target }}/work_dir"
           [ -d "$W" ] || { echo "no work_dir"; exit 0; }

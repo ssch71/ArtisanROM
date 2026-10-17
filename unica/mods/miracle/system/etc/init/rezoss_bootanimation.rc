@@ -1,0 +1,15 @@
+service rezoss_bootanim /system/bin/bootanimation_zip
+    class core
+    user graphics
+    group graphics system
+    disabled
+    oneshot
+
+on post-fs-data
+    exec_background -- /system/bin/sh /system/etc/unica/rezoss_bootanimation.sh --apply
+
+on property:init.svc.bootanim=running
+    exec_background -- /system/bin/sh /system/etc/unica/rezoss_bootanimation.sh --apply
+
+on boot
+    exec_background -- /system/bin/sh /system/etc/unica/rezoss_bootanimation.sh --apply
