@@ -205,7 +205,7 @@ index b8684de..1a565ec 100644
  .method public static bridge synthetic -$$Nest$fgetmLeAudioAllowDevices(Lcom/android/bluetooth/btservice/AdapterService;)Ljava/util/HashSet;
      .locals 0
  
-@@ -1226,6 +1242,14 @@
+@@ -1226,6 +1242,38 @@
      return-void
  .end method
  
@@ -217,13 +217,6 @@ index b8684de..1a565ec 100644
 +    return-void
 +.end method
 +
- .method public static bridge synthetic -$$Nest$fputmIsWifiGrip(Lcom/android/bluetooth/btservice/AdapterService;Z)V
-     .locals 0
- 
-@@ -1442,6 +1466,30 @@
-     return-object v0
- .end method
- 
 +.method public static bridge synthetic -$$Nest$sfgetmIsSarHistory()Z
 +    .locals 1
 +
@@ -248,8 +241,8 @@ index b8684de..1a565ec 100644
 +    return-void
 +.end method
 +
- .method static constructor <clinit>()V
-     .locals 19
+ .method public static bridge synthetic -$$Nest$fputmIsWifiGrip(Lcom/android/bluetooth/btservice/AdapterService;Z)V
+     .locals 0
  
 @@ -2395,7 +2443,7 @@
  .method public static SarType()Ljava/lang/String;
