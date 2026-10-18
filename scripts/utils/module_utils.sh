@@ -85,10 +85,8 @@ GET_GALAXY_STORE_DOWNLOAD_URL()
     local ONEUI
     local PROTOCOL
 
-    # Galaxy S25 Ultra EUR_OPENX
-    # Galaxy S22 Ultra GBL_OPENX
-    # Galaxy S25 Ultra KOR_SINGLEX
-    DEVICES=("SM-S938B" "SM-S901E" "SM-S938N")
+    # Galaxy S24 Ultra EUR_OPENX
+    DEVICES=("SM-S928B")
 
     OS="$(GET_PROP "system" "ro.build.version.sdk")"
     ONEUI="$(GET_PROP "system" "ro.build.version.oneui")"
