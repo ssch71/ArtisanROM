@@ -3,13 +3,12 @@ From: Salvo Giangreco <giangrecosalvo9@gmail.com>
 Date: Thu, 23 Jul 2026 18:00:48 +0200
 Subject: [PATCH] Enable SUPPORT_HEAD_SAR_BACKOFF support
 
----
- .../btservice/AdapterService$7.smali          | 138 ++++++++++++++++-
- .../bluetooth/btservice/AdapterService.smali  | 139 ++++++++++++++++--
- 2 files changed, 267 insertions(+), 10 deletions(-)
+Rebased for BP4A.251205.006: mIsSarHistory is an instance field there,
+so its bridge accessors take the AdapterService instance.
 
+---
 diff --git a/smali/com/android/bluetooth/btservice/AdapterService$7.smali b/smali/com/android/bluetooth/btservice/AdapterService$7.smali
-index 0412e6a..f77778b 100644
+index 0412e6a..3accbc4 100644
 --- a/smali/com/android/bluetooth/btservice/AdapterService$7.smali
 +++ b/smali/com/android/bluetooth/btservice/AdapterService$7.smali
 @@ -14,6 +14,10 @@
@@ -115,13 +114,13 @@ index 0412e6a..f77778b 100644
 +
 +    invoke-static {p1}, Lcom/android/bluetooth/btservice/AdapterService;->-$$Nest$sfputmIsSarActive(Z)V
 +
-+    invoke-static {}, Lcom/android/bluetooth/btservice/AdapterService;->-$$Nest$sfgetmIsSarHistory()Z
++    invoke-static {p0}, Lcom/android/bluetooth/btservice/AdapterService;->-$$Nest$fgetmIsSarHistory(Lcom/android/bluetooth/btservice/AdapterService;)Z
 +
-+    move-result p0
++    move-result v0
 +
-+    if-nez p0, :cond_0
++    if-nez v0, :cond_0
 +
-+    invoke-static {p1}, Lcom/android/bluetooth/btservice/AdapterService;->-$$Nest$sfputmIsSarHistory(Z)V
++    invoke-static {p0, p1}, Lcom/android/bluetooth/btservice/AdapterService;->-$$Nest$fputmIsSarHistory(Lcom/android/bluetooth/btservice/AdapterService;Z)V
 +
 +    :cond_0
 +    invoke-static {}, Lcom/android/bluetooth/btservice/AdapterService;->-$$Nest$sfgetTAG()Ljava/lang/String;
@@ -172,10 +171,10 @@ index 0412e6a..f77778b 100644
      return-void
  .end method
 diff --git a/smali/com/android/bluetooth/btservice/AdapterService.smali b/smali/com/android/bluetooth/btservice/AdapterService.smali
-index b8684de..1a565ec 100644
+index 63f6eb1..4d83fad 100644
 --- a/smali/com/android/bluetooth/btservice/AdapterService.smali
 +++ b/smali/com/android/bluetooth/btservice/AdapterService.smali
-@@ -1050,6 +1050,14 @@
+@@ -1505,6 +1505,14 @@
      return p0
  .end method
  
@@ -190,7 +189,7 @@ index b8684de..1a565ec 100644
  .method public static bridge synthetic -$$Nest$fgetmIsWifiGrip(Lcom/android/bluetooth/btservice/AdapterService;)Z
      .locals 0
  
-@@ -1058,6 +1066,14 @@
+@@ -1513,6 +1521,14 @@
      return p0
  .end method
  
@@ -205,7 +204,7 @@ index b8684de..1a565ec 100644
  .method public static bridge synthetic -$$Nest$fgetmLeAudioAllowDevices(Lcom/android/bluetooth/btservice/AdapterService;)Ljava/util/HashSet;
      .locals 0
  
-@@ -1226,6 +1242,38 @@
+@@ -1681,6 +1697,38 @@
      return-void
  .end method
  
@@ -217,12 +216,12 @@ index b8684de..1a565ec 100644
 +    return-void
 +.end method
 +
-+.method public static bridge synthetic -$$Nest$sfgetmIsSarHistory()Z
-+    .locals 1
++.method public static bridge synthetic -$$Nest$fgetmIsSarHistory(Lcom/android/bluetooth/btservice/AdapterService;)Z
++    .locals 0
 +
-+    sget-boolean v0, Lcom/android/bluetooth/btservice/AdapterService;->mIsSarHistory:Z
++    iget-boolean p0, p0, Lcom/android/bluetooth/btservice/AdapterService;->mIsSarHistory:Z
 +
-+    return v0
++    return p0
 +.end method
 +
 +.method public static bridge synthetic -$$Nest$sfputmIsSarActive(Z)V
@@ -233,10 +232,10 @@ index b8684de..1a565ec 100644
 +    return-void
 +.end method
 +
-+.method public static bridge synthetic -$$Nest$sfputmIsSarHistory(Z)V
++.method public static bridge synthetic -$$Nest$fputmIsSarHistory(Lcom/android/bluetooth/btservice/AdapterService;Z)V
 +    .locals 0
 +
-+    sput-boolean p0, Lcom/android/bluetooth/btservice/AdapterService;->mIsSarHistory:Z
++    iput-boolean p1, p0, Lcom/android/bluetooth/btservice/AdapterService;->mIsSarHistory:Z
 +
 +    return-void
 +.end method
@@ -244,7 +243,7 @@ index b8684de..1a565ec 100644
  .method public static bridge synthetic -$$Nest$fputmIsWifiGrip(Lcom/android/bluetooth/btservice/AdapterService;Z)V
      .locals 0
  
-@@ -2395,7 +2443,7 @@
+@@ -2507,7 +2555,7 @@
  .method public static SarType()Ljava/lang/String;
      .locals 1
  
@@ -253,7 +252,7 @@ index b8684de..1a565ec 100644
  
      return-object v0
  .end method
-@@ -19927,25 +19975,98 @@
+@@ -19901,25 +19949,98 @@
  .end method
  
  .method public sarBackoffDisable()V
@@ -362,4 +361,3 @@ index b8684de..1a565ec 100644
  .end method
 -- 
 2.55.0
-

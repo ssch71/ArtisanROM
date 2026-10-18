@@ -116,6 +116,12 @@ jobs:
           # smali files that the failed git apply patches target
           find out/target -type f \( -name "AdapterService.smali" -o -name 'AdapterService$7.smali' -o -name "LlmClientInterceptor.smali" \) \
             -exec cp --parents {} /tmp/patchdbg \; 2>/dev/null || true
+          # every smali file git apply touched in this run (target varies per failure)
+          if [ -f build.log ]; then
+            grep -oE '(Checking patch|patch failed:) /[^ :]+\.smali' build.log \
+              | sed -E 's/^(Checking patch|patch failed:) //' | sort -u \
+              | while read -r f; do [ -f "$f" ] && cp --parents "$f" /tmp/patchdbg; done || true
+          fi
           find /tmp/patchdbg -type f | head -50
 
       - name: Upload patch debug files
