@@ -1296,8 +1296,26 @@ if $SOURCE_WLAN_SUPPORT_MOBILEAP_PRIORITIZE_TRAFFIC; then
             "smali/com/samsung/android/server/wifi/ap/SemSoftApConfiguration.smali" "replaceall" \
             "SPF_Prio_Traffic=true" \
             "SPF_Prio_Traffic=false"
-        APPLY_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
-            "$MODPATH/wifi/prioritize_traffic/SecSettings.apk/0001-Disable-MOBILEAP_PRIORITIZE_TRAFFIC-support.patch"
+        # The SecSettings mobileap classes move between dex files across
+        # releases, so hide the switch with dynamic edits instead of the
+        # stock-diff patch (which only matched one specific build).
+        DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
+        for MHS_PRIO in \
+            "WifiApSmartPrioritySwitchController.smali|getAvailabilityStatus()I|3" \
+            "WifiApFrameworkUtils.smali|isPrioritizeRealTimeTrafficOn(Landroid/content/Context;)Z|false"; do
+            MHS_PRIO_SMALI="$(find "$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk" \
+                -path "*/com/samsung/android/settings/wifi/mobileap/*/${MHS_PRIO%%|*}" \
+                -printf '%P\n' -quit)"
+            if [ -z "$MHS_PRIO_SMALI" ]; then
+                LOGW "${MHS_PRIO%%|*} not found in SecSettings, skipping"
+                continue
+            fi
+            MHS_PRIO_REST="${MHS_PRIO#*|}"
+            SMALI_PATCH "system" "system/priv-app/SecSettings/SecSettings.apk" \
+                "$MHS_PRIO_SMALI" "return" "${MHS_PRIO_REST%|*}" "${MHS_PRIO_REST#*|}" \
+                || LOGW "Failed to patch ${MHS_PRIO%%|*}, skipping"
+        done
+        unset MHS_PRIO MHS_PRIO_SMALI MHS_PRIO_REST
     fi
 else
     if $TARGET_WLAN_SUPPORT_MOBILEAP_PRIORITIZE_TRAFFIC; then
