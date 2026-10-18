@@ -4,6 +4,8 @@ KERNEL_REPO="https://github.com/ssch71/not_samsung.sm8250-4.19/releases/download
 LOG_STEP_IN "- Downloading not_kernel ($KERNEL_TAG)"
 mkdir -p "$WORK_DIR/kernel"
 rm -f "$WORK_DIR/kernel/boot.img" "$WORK_DIR/kernel/dtbo.img" "$WORK_DIR/kernel/SHA256SUMS.txt"
+# Keep the installed custom recovery: do not ship the stock recovery.img
+rm -f "$WORK_DIR/kernel/recovery.img"
 
 DOWNLOAD_FILE "$KERNEL_REPO/boot.img" "$WORK_DIR/kernel/boot.img"
 DOWNLOAD_FILE "$KERNEL_REPO/dtbo.img" "$WORK_DIR/kernel/dtbo.img"
