@@ -1,3 +1,0 @@
-# Spoof ro.product.vendor.device for temporary display configuration fix on affected devices. (Some users have reported that their display (configuration) looked weird after installing a Magisk module called Ultimate Module S23X (version 3.5, fixed in later versions!) or RWACA - ROM Without A Cool Acronym - OneUI 7 Beta port.)
-# This does not seem to cause any problems on non-affected devices.
-SET_PROP "vendor" "ro.product.vendor.device" "e3qxxx"
