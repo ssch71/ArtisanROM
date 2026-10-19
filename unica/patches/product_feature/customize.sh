@@ -414,7 +414,13 @@ if [[ "$SOURCE_FINGERPRINT_CONFIG_SENSOR" != "$TARGET_FINGERPRINT_CONFIG_SENSOR"
             if [[ "$(GET_FINGERPRINT_SENSOR_TYPE "$TARGET_FINGERPRINT_CONFIG_SENSOR")" == "optical" ]]; then
                 SOURCE_FINGERPRINT_CONFIG_SENSOR="google_touch_display_optical,settings=3"
 
-                if [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
+                if $PRESERVE_NATIVE_DISPLAY_STACK; then
+                    # The r9q/r9s SurfaceFlinger, libgui and libui are One UI 8.0 builds linked
+                    # against graphics.common-V6 (and vendor.qti composer3-V1 on qssi), which
+                    # the QPR2 source no longer ships. Mixing them with the source libhwui and
+                    # libandroid_runtime also risks libgui ABI breaks, so keep the source stack.
+                    LOG "- Keeping native source display stack for optical FOD"
+                elif [[ "$TARGET_OS_SINGLE_SYSTEM_IMAGE" == "qssi" ]]; then
                     ADD_TO_WORK_DIR "r9qxxx" "system" "system/bin/surfaceflinger" 0 2000 755 "u:object_r:surfaceflinger_exec:s0"
                     # Ensure IQtiComposer support (pre-API 36)
                     # Check unica/patches/legacy/customize.sh for more info.
