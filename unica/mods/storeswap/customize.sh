@@ -12,9 +12,8 @@ STORE_SWAP_APPS=(
     "com.sec.android.app.clockpackage|ClockPackage"
     "com.sec.android.app.popupcalculator|SamsungCalculator PopupCalculator Calculator"
     "com.sec.android.app.myfiles|SecMyFiles2020 SecMyFiles MyFiles"
-    # Launcher / keyboard
+    # Launcher
     "com.sec.android.app.launcher|TouchWizHome_2017 TouchWizHome"
-    "com.samsung.android.honeyboard|HoneyBoard"
 )
 
 # Apps that are not part of the stock image: added as preload (user-removable) apps.
