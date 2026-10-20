@@ -19,6 +19,7 @@
     <string name="unica_dialog_reboot_title">Restart required</string>
     <string name="unica_extra_settings_title">Extra settings</string>
     <string name="unica_games_spoof_title">Unlock higher FPS in games</string>
+    <string name="unica_galaxy_store_spoof_title">Spoof Apps as S26 Ultra</string>
     <string name="unica_gphotos_title">Unlimited storage on Google Photos</string>
     <string name="unica_hma_summary">Prevent apps from detecting other installed apps.</string>
     <string name="unica_hma_title">Hide installed apps</string>

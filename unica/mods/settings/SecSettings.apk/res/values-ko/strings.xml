@@ -19,6 +19,7 @@
     <string name="unica_dialog_reboot_title">다시 시작 필요</string>
     <string name="unica_extra_settings_title">추가 설정</string>
     <string name="unica_games_spoof_title">게임에서 더 높은 FPS 잠금 해제</string>
+    <string name="unica_galaxy_store_spoof_title">S26 Ultra로 위장</string>
     <string name="unica_gphotos_title">Google 포토 무제한 저장공간</string>
     <string name="unica_hma_summary">앱이 설치된 다른 앱을 감지하지 못하도록 합니다.</string>
     <string name="unica_hma_title">설치된 앱 숨기기</string>

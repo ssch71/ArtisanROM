@@ -18,6 +18,26 @@ SMALI_PATCH "system" "system/framework/framework.jar" \
     '    invoke-virtual {p0, p3}, Landroid/app/Application;->attach(Landroid/content/Context;)V\n\n    invoke-static {p3}, Lio/mesalabs/unica/SamsungPropsHooks;->init(Landroid/content/Context;)V' \
     > /dev/null
 
+# Route SystemProperties.get through SamsungPropsHooks (Galaxy Store / apps device spoof)
+SYSPROPS_SMALI="$(find "$APKTOOL_DIR/system/framework/framework.jar" -type f \
+    -path '*/android/os/SystemProperties.smali' -printf '%P\n' -quit)"
+[ "$SYSPROPS_SMALI" ] || ABORT "SystemProperties.smali not found"
+if ! grep -q "SamsungPropsHooks;->onSystemPropertiesGet" \
+        "$APKTOOL_DIR/system/framework/framework.jar/$SYSPROPS_SMALI"; then
+    SMALI_PATCH "system" "system/framework/framework.jar" \
+        "$SYSPROPS_SMALI" "replace" \
+        'get(Ljava/lang/String;)Ljava/lang/String;' \
+        'invoke-static {p0}, Landroid/os/SystemProperties;->native_get(Ljava/lang/String;)Ljava/lang/String;' \
+        '    invoke-static {p0}, Lio/mesalabs/unica/SamsungPropsHooks;->onSystemPropertiesGet(Ljava/lang/String;)Ljava/lang/String;\n\n    move-result-object v0\n\n    if-eqz v0, :cond_unica_spoof\n\n    return-object v0\n\n    :cond_unica_spoof\n    invoke-static {p0}, Landroid/os/SystemProperties;->native_get(Ljava/lang/String;)Ljava/lang/String;' \
+        > /dev/null
+    SMALI_PATCH "system" "system/framework/framework.jar" \
+        "$SYSPROPS_SMALI" "replace" \
+        'get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' \
+        'invoke-static {p0, p1}, Landroid/os/SystemProperties;->native_get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' \
+        '    invoke-static {p0}, Lio/mesalabs/unica/SamsungPropsHooks;->onSystemPropertiesGet(Ljava/lang/String;)Ljava/lang/String;\n\n    move-result-object v0\n\n    if-eqz v0, :cond_unica_spoof\n\n    return-object v0\n\n    :cond_unica_spoof\n    invoke-static {p0, p1}, Landroid/os/SystemProperties;->native_get(Ljava/lang/String;Ljava/lang/String;)Ljava/lang/String;' \
+        > /dev/null
+fi
+
 DECODE_APK "system" "system/priv-app/SecSettings/SecSettings.apk"
 SECSETTINGS_APK="$APKTOOL_DIR/system/priv-app/SecSettings/SecSettings.apk"
 
