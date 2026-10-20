@@ -74,8 +74,11 @@ jobs:
           DEBIAN_FRONTEND=noninteractive sudo apt install -yq \
             attr ccache clang ffmpeg libbrotli-dev libbz2-dev \
             libgtest-dev libprotobuf-dev libunwind-dev libpcre2-dev \
-            libzstd-dev linux-modules-extra-$(uname -r) lld protobuf-compiler webp
-          sudo modprobe erofs f2fs
+            libzstd-dev lld protobuf-compiler webp
+          sudo apt install -yq linux-modules-extra-$(uname -r) || echo "linux-modules-extra-$(uname -r) not available, skipping"
+          sudo modprobe erofs || true
+          sudo modprobe f2fs || true
+          grep -wE "erofs|f2fs" /proc/filesystems || echo "WARNING: erofs/f2fs not available in this kernel"
           git config --global user.name "github-actions[bot]"
           git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
           echo -n "${{ secrets.PLATFORM_KEY_PK8 }}" | base64 --decode > security/artisanrom_platform.pk8
